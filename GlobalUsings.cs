@@ -1,0 +1,5 @@
+﻿global using ff1 = CommonBasicLibraries.AdvancedGeneralFunctionsAndProcesses.FileFunctions.FileFunctions;
+global using CommonBasicLibraries.CollectionClasses;
+global using CommonBasicLibraries.AdvancedGeneralFunctionsAndProcesses.CSharpCodeWriters;
+global using CommonBasicLibraries.AdvancedGeneralFunctionsAndProcesses.BasicExtensions;
+global using System.Xml.Linq;
