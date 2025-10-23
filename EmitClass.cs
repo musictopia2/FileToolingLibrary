@@ -18,24 +18,37 @@ internal partial class EmitClass(BasicList<FileClass> list)
     }
 
 
-    public static string ToValidIdentifier(string className)
+    public static string ToValidIdentifier(string className, bool toLower)
     {
+
+        bool rets = int.TryParse(className, out int value);
+        if (rets)
+        {
+            if (toLower)
+            {
+                return $"file{value}";
+            }
+            else
+            {
+                return $"File{value}";
+            }
+        }
+
         // Remove any non-letter/digit characters (like -, _, spaces, etc.)
         string otherName = CSharpRegEx().Replace(className, "");
-
+        string digits = DigitsRexEx().Match(className).Value;
         // Keep trailing digits but remove any digits that appear before the end.
         // This uses a lookahead to only match digits that are *not* followed by the end of the string.
-        otherName = Regex.Replace(otherName, @"\d+(?=\D)", ""); // remove digits followed by a letter
-        otherName = Regex.Replace(otherName, @"^\d+", "");      // remove digits at the start
-
+        otherName = DigitRemoveRegEx().Replace(otherName, ""); // remove digits followed by a letter
+        otherName = CSharpRegEx().Replace(otherName, "");      // remove digits at the start
         return otherName;
     }
 
     private static void PopulateDetails(ICodeBlock w, FileClass item)
     {
         var safeData = ToLiteral(item.Data); // escapes string for C# literal
-        string safeName1 = ToValidIdentifier(item.ClassName.ToLower());
-        string safeName2 = ToValidIdentifier(item.ClassName.CapitalizeFirstLetter());
+        string safeName1 = ToValidIdentifier(item.ClassName.ToLower(), true);
+        string safeName2 = ToValidIdentifier(item.ClassName.CapitalizeFirstLetter(), false);
         w.WriteLine($"private readonly static string _{safeName1} = {safeData};")
          .WriteLine($"public static string {safeName2} => \"{item.FullName}\";");
     }
@@ -61,7 +74,7 @@ internal partial class EmitClass(BasicList<FileClass> list)
                 {
                     foreach (var item in list)
                     {
-                        string safeName = ToValidIdentifier(item.ClassName.ToLower());
+                        string safeName = ToValidIdentifier(item.ClassName.ToLower(), true);
                         w.WriteLine($"""
                             CommonBasicLibraries.AdvancedGeneralFunctionsAndProcesses.FileFunctions.FileContentRegistry.RegisterFile("{item.FullName}", _{safeName});
                             """);
@@ -74,4 +87,8 @@ internal partial class EmitClass(BasicList<FileClass> list)
 
     [GeneratedRegex(@"[^A-Za-z0-9]+")]
     private static partial Regex CSharpRegEx();
+    [GeneratedRegex(@"\d+")]
+    private static partial Regex DigitsRexEx();
+    [GeneratedRegex(@"\d+(?=\D)")]
+    private static partial Regex DigitRemoveRegEx();
 }
