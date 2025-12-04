@@ -48,7 +48,7 @@ internal partial class EmitClass(BasicList<FileClass> list)
     {
         var safeData = ToLiteral(item.Data); // escapes string for C# literal
         string safeName1 = ToValidIdentifier(item.ClassName.ToLower(), true);
-        string safeName2 = ToValidIdentifier(item.ClassName.CapitalizeFirstLetter(), false);
+        string safeName2 = ToValidIdentifier(item.ClassName.CapitalizeFirstLetter, false);
         w.WriteLine($"private readonly static string _{safeName1} = {safeData};")
          .WriteLine($"public static string {safeName2} => \"{item.FullName}\";");
     }
